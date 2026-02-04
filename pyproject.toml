@@ -1,0 +1,25 @@
+[project]
+name = "karpo-context"
+version = "0.1.0"
+description = "Shared Python package for managing agent conversation context"
+requires-python = ">=3.12"
+dependencies = [
+    "redis>=5.0.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=1.0.0",
+    "fakeredis>=2.21.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+
+[tool.hatch.build.targets.wheel]
+packages = ["karpo_context"]
