@@ -143,3 +143,56 @@ class TestRedisContextStore:
         ttl = await redis_client.ttl("karpo:ctx:7")
         assert ttl > 0
         assert ttl <= 7 * 24 * 3600
+
+    async def test_close(self, redis_client):
+        from karpo_context.store.redis_store import RedisContextStore
+
+        store = RedisContextStore(redis_client)
+        await store.close()  # Should not raise
+
+
+class TestRedisContextStoreFromUrl:
+    def test_from_url_creates_store(self):
+        from karpo_context.store.redis_store import RedisContextStore
+
+        store = RedisContextStore.from_url("redis://localhost:6379")
+        assert isinstance(store, RedisContextStore)
+        assert store._prefix == "karpo:ctx"
+        assert store._ttl_seconds == 7 * 24 * 3600
+
+    def test_from_url_custom_prefix_and_ttl(self):
+        from karpo_context.store.redis_store import RedisContextStore
+
+        store = RedisContextStore.from_url(
+            "redis://localhost:6379",
+            prefix="custom:prefix",
+            ttl_seconds=3600,
+        )
+        assert store._prefix == "custom:prefix"
+        assert store._ttl_seconds == 3600
+
+    def test_from_url_rediss_enables_ssl(self):
+        from karpo_context.store.redis_store import RedisContextStore
+
+        store = RedisContextStore.from_url(
+            "rediss://master.my-cache.xxx.use1.cache.amazonaws.com:6379"
+        )
+        assert isinstance(store, RedisContextStore)
+        # The underlying client should have SSL enabled
+        conn_kwargs = store._redis.connection_pool.connection_kwargs
+        assert conn_kwargs.get("ssl") is True
+        assert conn_kwargs.get("ssl_context") is not None
+
+    def test_from_url_rediss_skip_cert_verify(self):
+        import ssl
+        from karpo_context.store.redis_store import RedisContextStore
+
+        store = RedisContextStore.from_url(
+            "rediss://master.my-cache.xxx.use1.cache.amazonaws.com:6379",
+            ssl_cert_reqs="none",
+        )
+        conn_kwargs = store._redis.connection_pool.connection_kwargs
+        ssl_ctx = conn_kwargs.get("ssl_context")
+        assert ssl_ctx is not None
+        assert ssl_ctx.check_hostname is False
+        assert ssl_ctx.verify_mode == ssl.CERT_NONE

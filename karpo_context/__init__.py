@@ -2,6 +2,7 @@
 from karpo_context.compaction.base import CompactionTrigger, Summarizer
 from karpo_context.compaction.message_count import MessageCountTrigger
 from karpo_context.compaction.summarizer import LLMSummarizer
+from karpo_context.defaults import CONTEXT_REDIS_URL, create_context_store
 from karpo_context.manager import ContextManager
 from karpo_context.models import ChatMessage, ConversationContext, ToolCallRecord
 from karpo_context.store.base import ContextStore
@@ -18,4 +19,6 @@ __all__ = [
     "MessageCountTrigger",
     "LLMSummarizer",
     "ContextManager",
+    "CONTEXT_REDIS_URL",
+    "create_context_store",
 ]

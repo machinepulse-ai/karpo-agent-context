@@ -43,6 +43,14 @@ class TestPublicExports:
         from karpo_context import ContextManager
         assert ContextManager is not None
 
+    def test_create_context_store_importable(self):
+        from karpo_context import create_context_store
+        assert create_context_store is not None
+
+    def test_context_redis_url_importable(self):
+        from karpo_context import CONTEXT_REDIS_URL
+        assert CONTEXT_REDIS_URL is not None
+
     def test_all_contains_all_names(self):
         expected = {
             "ChatMessage",
@@ -55,8 +63,10 @@ class TestPublicExports:
             "MessageCountTrigger",
             "LLMSummarizer",
             "ContextManager",
+            "CONTEXT_REDIS_URL",
+            "create_context_store",
         }
         assert set(karpo_context.__all__) == expected
 
-    def test_all_has_exactly_10_names(self):
-        assert len(karpo_context.__all__) == 10
+    def test_all_has_exactly_12_names(self):
+        assert len(karpo_context.__all__) == 12

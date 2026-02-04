@@ -1,5 +1,9 @@
 """Redis-backed implementation of ContextStore."""
+from __future__ import annotations
+
 import json
+import ssl
+from typing import Any
 
 from redis.asyncio import Redis
 
@@ -19,6 +23,50 @@ class RedisContextStore(ContextStore):
         self._redis = redis_client
         self._prefix = prefix
         self._ttl_seconds = ttl_seconds
+
+    @classmethod
+    def from_url(
+        cls,
+        url: str,
+        *,
+        prefix: str = "karpo:ctx",
+        ttl_seconds: int = 7 * 24 * 3600,
+        ssl_cert_reqs: str | None = None,
+        **redis_kwargs: Any,
+    ) -> RedisContextStore:
+        """Create a store from a Redis URL.
+
+        Supports ``redis://`` and ``rediss://`` (TLS) schemes.
+        For AWS ElastiCache, use the ``rediss://`` endpoint directly.
+
+        Args:
+            url: Redis connection URL, e.g.
+                ``rediss://master.my-cache.xxx.use1.cache.amazonaws.com:6379``
+            prefix: Key prefix for Redis keys.
+            ttl_seconds: Time-to-live for stored contexts.
+            ssl_cert_reqs: SSL certificate verification mode. Pass ``"none"``
+                to skip certificate verification (useful for ElastiCache
+                endpoints with self-signed certs). Defaults to ``None``
+                which uses the system default.
+            **redis_kwargs: Extra keyword arguments forwarded to
+                ``Redis.from_url()``, e.g. ``password``, ``decode_responses``.
+        """
+        kwargs: dict[str, Any] = {**redis_kwargs}
+
+        if url.startswith("rediss://"):
+            ssl_ctx = ssl.create_default_context()
+            if ssl_cert_reqs == "none":
+                ssl_ctx.check_hostname = False
+                ssl_ctx.verify_mode = ssl.CERT_NONE
+            kwargs.setdefault("ssl", True)
+            kwargs.setdefault("ssl_context", ssl_ctx)
+
+        client = Redis.from_url(url, **kwargs)
+        return cls(client, prefix=prefix, ttl_seconds=ttl_seconds)
+
+    async def close(self) -> None:
+        """Close the underlying Redis connection."""
+        await self._redis.aclose()
 
     def _key(self, conversation_id: int) -> str:
         return f"{self._prefix}:{conversation_id}"

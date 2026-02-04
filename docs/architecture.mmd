@@ -1,0 +1,21 @@
+graph TD
+    App[Application<br/>karpo-agent-main etc.]
+    CM[ContextManager]
+    CT[CompactionTrigger<br/>MessageCountTrigger]
+    SUM[Summarizer<br/>LLMSummarizer]
+    CS[ContextStore<br/>interface]
+    RCS[RedisContextStore]
+    DF[create_context_store<br/>factory]
+    Redis[(AWS ElastiCache<br/>Redis 7.1 / TLS)]
+
+    App -->|"append_message / load / save"| CM
+    App -.->|"quick init"| DF
+    DF -->|"from_url"| RCS
+    CM -->|"store"| CS
+    CM -->|"trigger"| CT
+    CM -->|"summarizer"| SUM
+    CS -.-|"impl"| RCS
+    RCS -->|"rediss://"| Redis
+
+    classDef iface stroke-dasharray: 5 5
+    class CS iface
