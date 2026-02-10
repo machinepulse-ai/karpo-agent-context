@@ -6,6 +6,7 @@ from karpo_context.compaction.summarizer import LLMSummarizer
 from karpo_context.config import CONTEXT_CONFIGS, ContextConfig, get_config
 from karpo_context.defaults import CONTEXT_REDIS_URL, create_context_store
 from karpo_context.manager import ContextManager
+from karpo_context.pipeline import ContextPipeline
 from karpo_context.models import (
     ChatMessage,
     ConversationContext,
@@ -42,6 +43,8 @@ __all__ = [
     "LLMSummarizer",
     # Manager
     "ContextManager",
+    # Pipeline
+    "ContextPipeline",
     # Defaults
     "CONTEXT_REDIS_URL",
     "create_context_store",

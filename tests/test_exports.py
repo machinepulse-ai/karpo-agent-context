@@ -83,6 +83,10 @@ class TestPublicExports:
         from karpo_context import get_config
         assert get_config is not None
 
+    def test_context_pipeline_importable(self):
+        from karpo_context import ContextPipeline
+        assert ContextPipeline is not None
+
     def test_all_contains_all_names(self):
         expected = {
             "ChatMessage",
@@ -103,10 +107,11 @@ class TestPublicExports:
             "MessageCountTrigger",
             "LLMSummarizer",
             "ContextManager",
+            "ContextPipeline",
             "CONTEXT_REDIS_URL",
             "create_context_store",
         }
         assert set(karpo_context.__all__) == expected
 
-    def test_all_has_exactly_20_names(self):
-        assert len(karpo_context.__all__) == 20
+    def test_all_has_exactly_21_names(self):
+        assert len(karpo_context.__all__) == 21
