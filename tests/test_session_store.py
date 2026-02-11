@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 import pytest
 import fakeredis.aioredis
 
-from karpo_context.models import SessionState, ConversationSummary, ChatMessage
+from karpo_context.models import SessionState, ConversationSummary
 
 
 @pytest.fixture
