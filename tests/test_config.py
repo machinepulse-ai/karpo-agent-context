@@ -1,5 +1,4 @@
 """Tests for ContextConfig and presets."""
-import pytest
 
 from karpo_context.budget import ContextBudget
 

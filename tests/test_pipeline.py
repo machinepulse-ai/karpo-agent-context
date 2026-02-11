@@ -1,7 +1,7 @@
 """Tests for ContextPipeline - the main entry point for context assembly."""
 import pytest
 from datetime import datetime, timezone
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock
 
 import fakeredis.aioredis
 
@@ -196,6 +196,8 @@ class TestContextPipelineCompress:
 
         compressed = await pipeline.compress_async(session, persona="Agent")
 
+        # Compressed session should be returned
+        assert compressed is not None
         # Summary should have been generated
         mock_summarizer.summarize.assert_called_once()
 
@@ -292,8 +294,10 @@ class TestContextPipelineFullCycle:
         session = await pipeline.load(thread_id=1, user_id="user-001")
         session = pipeline.merge(session, user_input="I want to go to Tokyo")
         estimate = pipeline.estimate(session, persona="Travel agent")
+        assert "total_tokens" in estimate
         session = pipeline.compress(session, persona="Travel agent")
         result = pipeline.assemble(session, persona="Travel agent")
+        assert "system_prompt" in result
         session = await pipeline.complete(session, assistant_response="When?")
 
         assert session.turn_count == 1
@@ -303,6 +307,7 @@ class TestContextPipelineFullCycle:
         session = await pipeline.load(thread_id=1, user_id="user-001")
         session = pipeline.merge(session, user_input="March 2026")
         result = pipeline.assemble(session, persona="Travel agent")
+        assert "messages" in result
         session = await pipeline.complete(session, assistant_response="Great!")
 
         assert session.turn_count == 2
