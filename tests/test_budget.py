@@ -1,6 +1,5 @@
 """Tests for TokenBudgetManager."""
 
-import pytest
 
 from karpo_context.budget import TokenBudgetManager, ContextBudget
 

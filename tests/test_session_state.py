@@ -1,6 +1,5 @@
 """Tests for SessionState and ConversationSummary models."""
 
-import pytest
 from datetime import datetime, timezone
 
 from karpo_context.models import (
